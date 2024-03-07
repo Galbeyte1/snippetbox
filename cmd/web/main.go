@@ -35,5 +35,11 @@ func main() {
 	// we use the log.Fatal() function to log the error message and exit. Note
 	// that any error returned by http.ListenAndServe() is always non-nil.
 	err := http.ListenAndServe(":4000", mux)
+	// all incoming HTTP requests are served in their own goroutine.
+	// For busy servers, this means it’s very likely that the code in
+	// or called by your handlers will be running concurrently. While
+	// this helps make Go blazingly fast, the downside is that you need
+	// to be aware of (and protect against) race conditions when accessing
+	// shared resources from your handlers.
 	log.Fatal(err)
 }

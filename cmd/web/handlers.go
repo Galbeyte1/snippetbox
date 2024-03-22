@@ -17,15 +17,6 @@ const (
 // Define a home handler function which writes a byte slice containing
 // "Hello from Snippetbox" as a the response body.
 func home(w http.ResponseWriter, r *http.Request) {
-	// Check if the current request URL path exactly matches "/". If it doesn't, use
-	// the http.NotFound() function to send a 404 response to the client.
-	// Importantly, we then return from the handler. We then return from the function
-	// so that the subsequent code is not executed.
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-
 	// Initialize a slice containing the paths to the two files. It's important
 	// to note that the file containing our base template must be the *first*
 	// file in the slice.

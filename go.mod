@@ -1,3 +1,3 @@
 module github.com/Galbeyte1/snippetbox
 
-go 1.20
+go 1.22

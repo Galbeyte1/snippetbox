@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -11,12 +10,14 @@ import (
 const (
 	NOT_ALLOWED  = http.StatusMethodNotAllowed
 	OK           = http.StatusOK
+	CREATED      = http.StatusCreated
 	SERVER_ERROR = http.StatusInternalServerError
 )
 
 // Define a home handler function which writes a byte slice containing
 // "Hello from Snippetbox" as a the response body.
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Server", "Go")
 	// Initialize a slice containing the paths to the two files. It's important
 	// to note that the file containing our base template must be the *first*
 	// file in the slice.
@@ -34,7 +35,12 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// that we use ... to pass the contents // of the files slice as variadic arguments.
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Print(err.Error())
+		// Because the home handler is now a method against the application struct
+		// it can access its fields, including the structured logger. We'll
+		// use this to create a log entry at Error level containing the error
+		// message, also including the request method and URI as attributes to
+		// assist with debugging
+		app.serverError(w, r, err)
 		http.Error(w, "Internal Server Error", SERVER_ERROR)
 		return
 	}
@@ -45,7 +51,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// leave as nil.
 	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
-		log.Print(err.Error())
+		app.serverError(w, r, err)
 		http.Error(w, "Internal Server Error", SERVER_ERROR)
 	}
 
@@ -53,17 +59,18 @@ func home(w http.ResponseWriter, r *http.Request) {
 }
 
 // Add a snippetView handler function.
-func snippetView(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil || id < 1 {
 		http.NotFound(w, r)
 		return
 	}
-	fmt.Fprintf(w, "Display a specific snippet with ID %d...", id)
+	msg := fmt.Sprintf("Display a specific snippet with ID %d...", id)
+	w.Write([]byte(msg))
 }
 
 // Add a snippetCreate handler function.
-func snippetCreate(w http.ResponseWriter, r *http.Request) {
+func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 
 	// Use r.Method to check whether the request is using POST or not.
 	if r.Method != http.MethodPost {
@@ -79,4 +86,13 @@ func snippetCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write([]byte("Create a new snippet..."))
+}
+
+// Add a snippetCreatePost handler funciton
+func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+	// Use the w.WriteHeader() method to send a 201 status code
+	w.WriteHeader(CREATED)
+
+	w.Write([]byte("Save a new snippet..."))
+
 }

@@ -14,7 +14,7 @@ This allows for
 - Distinguishing between different _severities_ of log entries
 - Enforce a consistent structure for log entries so it's easier to parse when using external programs like Datadog, New Relic etc.
 
-I'll use the `slog.New()` function to initialize a new structured logger, which writes to the standard out stream and uses the default settings. It's important to note custom loggers created by `slog.New()` are **concurrency-safe**. We can share a single logger and use it across multiple goroutines and in our HTTP handlers without needing to worry about race conditions.
+I'll use the `slog.New()` function to initialize a new structured logger, which writes to the standard out stream and uses the default settings. It's important to note custom loggers created by `slog.New()` are **concurrency-safe**. We can share a single logger and use it across multiple goroutines and in the HTTP handlers without needing to worry about race conditions.
 
 ```Go
 logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
@@ -30,9 +30,9 @@ level by calling the `Debug()`, `Info()`, `Warn()` or `Error()`
 
 ### Dependency Injection
 
-How can we make our new structured logger available to our `func home(w http.ResponseWriter, r *http.Request)` function from `func main()`?
+How can we make the new structured logger available to the `func home(w http.ResponseWriter, r *http.Request)` function from `func main()`?
 
-How can we make **ANY** dependency available to our handlers?
+How can I make **ANY** dependency available to the handlers?
 There are a few different ways to do this, the simplest being to just make the dependency as a global variable. But in general, it is good practice to inject dependencies into your handlers. It makes your code more
 
 - explicit
@@ -53,19 +53,19 @@ I defined an application struct to hold the application-wide dependencies for th
 web application.
 
 ```Go
-    type application struct {
-        logger   *slog.Logger
-        snippets *models.SnippetModel
-    }
+type application struct {
+    logger   *slog.Logger
+    snippets *models.SnippetModel
+}
 ```
 
-I initialized a new instance of our application struct, containing the dependencies
+I initialized a new instance of the application struct, containing the dependencies
 
 ```Go
-    app := &application{
-        logger:   logger,
-        snippets: &models.SnippetModel{DB: db},
-    }
+app := &application{
+    logger:   logger,
+    snippets: &models.SnippetModel{DB: db},
+}
 ```
 
 ```Go
@@ -88,23 +88,23 @@ It writes a log entry at this level including the request method and URI as attr
 
 ```Go
 ...
-    var (
-        method = r.Method
-        uri = r.URL.RequestURI()
+var (
+    method = r.Method
+    uri = r.URL.RequestURI()
 
-    )
+)
 
-    app.logger.Error(err.Error(), "method", method, "uri", uri)
-    http.Error(w, http.StatusText(SERVER_ERROR), SERVER_ERROR)
+app.logger.Error(err.Error(), "method", method, "uri", uri)
+http.Error(w, http.StatusText(SERVER_ERROR), SERVER_ERROR)
 ```
 
-Now as an example, within our `func (app *application) home` handler, we can pass simple centralized, structured error logging as such.
+Now as an example, within the `func (app *application) home` handler, we can pass simple centralized, structured error logging as such.
 
 ```Go
-    ...
-    ts, err := template.ParseFiles(files...)
-	if err != nil {
-        app.serverError(w, r, err)
-    }
-    ...
+...
+ts, err := template.ParseFiles(files...)
+if err != nil {
+    app.serverError(w, r, err)
+}
+...
 ```

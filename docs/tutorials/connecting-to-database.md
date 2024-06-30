@@ -2,8 +2,6 @@
 
 ---
 
-## Connecting Locally
-
 ### Verify you have MySQL installed locally
 
 ```zsh
@@ -20,7 +18,9 @@ mysql --version
 brew install mysql
 ```
 
-Once you've installed and verified MySQL you can start a MySQL server
+Once you've installed and verified MySQL you can
+
+### Start a MySQL server
 
 ```zsh
 mysql.server start
@@ -40,15 +40,10 @@ mysql.server restart
 
 (DB User creation coming soon)
 
+## Connecting Locally
+
+The default is to connect as the web user
+
 ```zsh
 mysql -D snippetbox -u web -p
 ```
-
-Yu have total control over which database is used at runtime, just by using
-the `-dsn` command-line flag
-
-```zsh
-go run cmd/web/main.go -dsn <USER:PASSWORD@/snippetbox?parseTime=true>
-```
-
-Where `USER` is a database use and `PASSWORD` is substitute for the password.

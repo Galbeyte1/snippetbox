@@ -6,9 +6,11 @@ A website that lets people paste and share snippets.
 
 ![alt text](docs/imgs/snippetbox.png)
 
+---
+
 ## Table of Contents
 
-- ### [Docs](docs/)
+- **[Docs](docs/)**
 
   - **[Tutorials](docs/tutorials/)**
     - **[Running Locally](docs/tutorials/running-locally.md)**
@@ -23,10 +25,23 @@ A website that lets people paste and share snippets.
     - **[Centralized Error Handling](docs/explanations/dependency-injection.md/#centralized-error-handling)**
   - **[References](docs/references/)**
     - **[Templating](docs/references/templating.md)**
+    - **[Selecting Enviornment](docs/references/selecting-database.md)**
 
-### System Design Overview
+---
 
-### Task List
+## System Design Overview
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+### Installation
+
+---
+
+## Task List
 
 - [x] Start converting heavy comments to docs
 - [ ] System Design Overview

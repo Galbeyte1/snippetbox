@@ -14,7 +14,20 @@ A quirk of our MySQL driver is that we need to use the `parseTime=true` paramete
 
 ---
 
-### Connecting to Development Database
+### Connecting to Dev Enviornment
+
+Start local MySQL Database server
+
+```zsh
+mysql.server start
+```
+
+Run application with local data source name
+
+```zsh
+go run cmd/web/main.go -dsn web:YES@/snippetbox?parseTime=true>
+
+```
 
 ---
 

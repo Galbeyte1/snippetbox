@@ -1,8 +1,12 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
 
-func (app *application) routes() *http.ServeMux {
+	"github.com/justinas/alice"
+)
+
+func (app *application) routes() http.Handler {
 	// Use the http.NewServeMux() function to initialize a new servemux, then
 	// register the home function as the handler for the "/" URL pattern.
 	mux := http.NewServeMux()
@@ -31,5 +35,13 @@ func (app *application) routes() *http.ServeMux {
 	// to be aware of (and protect against) race conditions when accessing
 	// shared resources from your handlers.
 
-	return mux
+	// Create middleware chain containing our `standard` middleware
+	// which will be used for every request our application receives.
+	standard := alice.New(
+		app.recoverPanic,
+		app.logRequest,
+		commonHeaders,
+	)
+
+	return standard.Then(mux)
 }

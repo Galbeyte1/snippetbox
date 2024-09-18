@@ -21,10 +21,10 @@ const (
 )
 
 type snippetCreateForm struct {
-	Title   string
-	Content string
-	Expires int
-	validator.Validator
+	Title               string
+	Content             string
+	Expires             int
+	validator.Validator `form:"-"`
 }
 
 // Define a home handler function which writes a byte slice containing
@@ -82,22 +82,12 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 // Add a snippetCreatePost handler funciton
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 
-	err := r.ParseForm()
+	var form snippetCreateForm
+
+	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, BAD_REQUEST)
 		return
-	}
-
-	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
-	if err != nil {
-		app.clientError(w, BAD_REQUEST)
-		return
-	}
-
-	form := snippetCreateForm{
-		Title:   r.PostForm.Get("title"),
-		Content: r.PostForm.Get("content"),
-		Expires: expires,
 	}
 
 	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")

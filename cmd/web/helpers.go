@@ -2,8 +2,11 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
+
+	"github.com/go-playground/form/v4"
 )
 
 func (app *application) render(w http.ResponseWriter, r *http.Request, status int, page string, data templateData) {
@@ -62,4 +65,29 @@ func (app *application) serverError(w http.ResponseWriter, r *http.Request, err 
 // to the user.
 func (app *application) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
+}
+
+// Create a new decodePostForm helper method. The second parameter here, dst,
+// is the target destination that we want to decode the form data into.
+func (app *application) decodePostForm(r *http.Request, dst any) error {
+	// Call ParseForm() on the request, in the same way that we did in our
+	// snippetCreatePost handler.
+	err := r.ParseForm()
+
+	if err != nil {
+		return err
+	}
+
+	err = app.formDecoder.Decode(dst, r.PostForm)
+	if err != nil {
+		var invalidDecoderError *form.InvalidDecoderError
+
+		if errors.As(err, &invalidDecoderError) {
+			panic(err)
+		}
+
+		return err
+	}
+
+	return nil
 }
